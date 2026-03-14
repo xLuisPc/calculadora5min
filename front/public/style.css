@@ -1,0 +1,101 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f4f8;
+  margin: 0;
+  padding: 24px;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+h1,
+h2 {
+  margin-top: 0;
+}
+
+.calculator-shell {
+  max-width: 360px;
+  background: #171717;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.operation {
+  color: #a3a3a3;
+  font-size: 14px;
+  min-height: 20px;
+  margin: 0 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.display {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background: #0f0f0f;
+  color: #ffffff;
+  text-align: right;
+  font-size: 34px;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.key {
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 22px;
+  cursor: pointer;
+  background: #2d2d2d;
+  color: #f4f4f5;
+}
+
+.key-op {
+  background: #3f3f46;
+}
+
+.key-fn {
+  background: #52525b;
+}
+
+.key-eq {
+  background: #f97316;
+  color: #fff;
+  grid-row: span 2;
+}
+
+.key-zero {
+  grid-column: span 3;
+}
+
+.error {
+  color: #b00020;
+  min-height: 20px;
+}
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.history-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
