@@ -3,9 +3,9 @@ USE calculadora;
 
 CREATE TABLE IF NOT EXISTS calculations (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  operand1 DOUBLE NOT NULL,
-  operand2 DOUBLE NOT NULL,
-  operator VARCHAR(1) NOT NULL,
+  operand1 DOUBLE NULL,
+  operand2 DOUBLE NULL,
+  operator VARCHAR(20) NULL,
   expression VARCHAR(255) NOT NULL,
   result DOUBLE NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

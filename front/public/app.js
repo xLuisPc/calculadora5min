@@ -3,100 +3,227 @@ const display = document.getElementById('display');
 const operationEl = document.getElementById('operation');
 const errorEl = document.getElementById('error');
 const historyEl = document.getElementById('history');
+const angleModeButton = document.getElementById('angle-mode');
 
-let firstOperand = null;
-let selectedOperator = null;
-let currentInput = '0';
-let waitingForSecondOperand = false;
+let expression = '';
 let lastExpression = '';
+let lastResult = null;
 let justCalculated = false;
+let angleMode = 'deg';
 
-function updateDisplay() {
-  if (firstOperand !== null && selectedOperator) {
-    const secondPart = waitingForSecondOperand ? '' : ` ${currentInput}`;
-    display.value = `${firstOperand} ${selectedOperator}${secondPart}`;
-  } else if (lastExpression) {
-    display.value = lastExpression;
-  } else {
-    display.value = currentInput;
-  }
-
-  operationEl.innerHTML = '&nbsp;';
+function formatExpression(value) {
+  return value
+    .replace(/\*/g, ' × ')
+    .replace(/\//g, ' ÷ ')
+    .replace(/-/g, '−')
+    .replace(/\^/g, ' ^ ')
+    .replace(/sqrt\(/g, '√(')
+    .replace(/pi/g, 'π');
 }
 
-function resetCalculator() {
-  firstOperand = null;
-  selectedOperator = null;
-  currentInput = '0';
-  waitingForSecondOperand = false;
+function endsWithValue(value) {
+  return /(\d|\.|\)|pi|e)$/i.test(value);
+}
+
+function startsValueToken(token) {
+  return /^(\d|\.|pi|e|\(|sin\(|cos\(|tan\(|ln\(|log\(|sqrt\(|abs\()/i.test(token);
+}
+
+function updateModeButton() {
+  angleModeButton.textContent = angleMode.toUpperCase();
+  angleModeButton.setAttribute('aria-pressed', String(angleMode === 'rad'));
+}
+
+function updateDisplay() {
+  const displayValue = expression || (lastResult !== null ? String(lastResult) : '0');
+  display.value = formatExpression(displayValue);
+
+  if (expression) {
+    operationEl.textContent = `${angleMode.toUpperCase()} · editando`;
+  } else if (lastExpression) {
+    operationEl.textContent = `${formatExpression(lastExpression)} =`;
+  } else {
+    operationEl.innerHTML = '&nbsp;';
+  }
+
+  updateModeButton();
+}
+
+function clearExpression() {
+  expression = '';
   lastExpression = '';
+  lastResult = null;
   justCalculated = false;
+  errorEl.textContent = '';
   updateDisplay();
 }
 
-function inputNumber(value) {
-  if (justCalculated && firstOperand === null && !selectedOperator) {
-    currentInput = value;
-    justCalculated = false;
-    lastExpression = '';
+function prepareForInput(token) {
+  if (!justCalculated) {
     return;
   }
 
-  if (waitingForSecondOperand) {
-    currentInput = value;
-    waitingForSecondOperand = false;
-    return;
-  }
+  const continuesPreviousResult = ['+', '-', '*', '/', '^'].includes(token);
 
-  if (currentInput === '0') {
-    currentInput = value;
+  if (continuesPreviousResult && lastResult !== null) {
+    expression = String(lastResult);
   } else {
-    currentInput += value;
-  }
-}
-
-function inputDecimal() {
-  if (justCalculated && firstOperand === null && !selectedOperator) {
-    currentInput = '0.';
-    justCalculated = false;
+    expression = '';
     lastExpression = '';
-    return;
   }
 
-  if (waitingForSecondOperand) {
-    currentInput = '0.';
-    waitingForSecondOperand = false;
-    return;
-  }
-
-  if (!currentInput.includes('.')) {
-    currentInput += '.';
-  }
+  justCalculated = false;
 }
 
-function chooseOperator(operator) {
-  justCalculated = false;
+function appendToken(token) {
+  prepareForInput(token);
 
-  if (firstOperand === null) {
-    firstOperand = Number(currentInput);
+  if (expression && startsValueToken(token) && endsWithValue(expression)) {
+    expression += '*';
   }
 
-  selectedOperator = operator;
-  waitingForSecondOperand = true;
+  expression += token;
+  errorEl.textContent = '';
+  updateDisplay();
+}
+
+function appendNumber(token) {
+  appendToken(token);
+}
+
+function appendDecimal() {
+  prepareForInput('.');
+
+  const lastNumberMatch = expression.match(/(\d*\.?\d*)$/);
+  const currentSegment = lastNumberMatch ? lastNumberMatch[0] : '';
+
+  if (currentSegment.includes('.')) {
+    return;
+  }
+
+  if (!expression || /[+\-*/^(]$/.test(expression)) {
+    expression += '0.';
+  } else if (endsWithValue(expression)) {
+    expression += expression.endsWith(')') || expression.endsWith('pi') || expression.endsWith('e') ? '*0.' : '.';
+  } else {
+    expression += '.';
+  }
+
+  errorEl.textContent = '';
+  updateDisplay();
+}
+
+function appendOperator(token) {
+  prepareForInput(token);
+
+  if (!expression) {
+    if (token === '-') {
+      expression = '-';
+      updateDisplay();
+    }
+    return;
+  }
+
+  if (/[+\-*/^]$/.test(expression)) {
+    if (token === '-' && !expression.endsWith('-')) {
+      expression += '-';
+    } else {
+      expression = `${expression.slice(0, -1)}${token}`;
+    }
+  } else {
+    expression += token;
+  }
+
+  errorEl.textContent = '';
+  updateDisplay();
+}
+
+function deleteLastCharacter() {
+  if (!expression) {
+    return;
+  }
+
+  expression = expression.slice(0, -1);
+  justCalculated = false;
+  errorEl.textContent = '';
+  updateDisplay();
+}
+
+function appendPower() {
+  if (!expression && lastResult !== null) {
+    expression = String(lastResult);
+  }
+
+  if (!expression || /[+\-*/^(]$/.test(expression)) {
+    return;
+  }
+
+  expression += '^';
+  justCalculated = false;
+  errorEl.textContent = '';
+  updateDisplay();
+}
+
+function applySquare() {
+  if (!expression && lastResult !== null) {
+    expression = String(lastResult);
+  }
+
+  if (!expression || /[+\-*/^(]$/.test(expression)) {
+    return;
+  }
+
+  expression += '^2';
+  justCalculated = false;
+  errorEl.textContent = '';
+  updateDisplay();
+}
+
+function applyReciprocal() {
+  const source = expression || (lastResult !== null ? String(lastResult) : '');
+
+  if (!source) {
+    return;
+  }
+
+  expression = `1/(${source})`;
+  lastExpression = '';
+  justCalculated = false;
+  errorEl.textContent = '';
+  updateDisplay();
+}
+
+function toggleSign() {
+  const source = expression || (lastResult !== null ? String(lastResult) : '');
+
+  if (!source) {
+    expression = '-';
+  } else if (/^-\(.+\)$/.test(source)) {
+    expression = source.slice(2, -1);
+  } else {
+    expression = `-(${source})`;
+  }
+
+  justCalculated = false;
+  errorEl.textContent = '';
+  updateDisplay();
+}
+
+function useLastResult() {
+  if (lastResult === null) {
+    return;
+  }
+
+  const token = lastResult < 0 ? `(${lastResult})` : String(lastResult);
+  appendToken(token);
 }
 
 async function executeCalculation() {
-  if (firstOperand === null || !selectedOperator || waitingForSecondOperand) {
+  if (!expression) {
     return;
   }
 
   errorEl.textContent = '';
-
-  const payload = {
-    operand1: firstOperand,
-    operand2: Number(currentInput),
-    operator: selectedOperator
-  };
 
   try {
     const response = await fetch('/api/calculate', {
@@ -104,7 +231,10 @@ async function executeCalculation() {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        expression,
+        mode: angleMode
+      })
     });
 
     const data = await response.json();
@@ -113,11 +243,9 @@ async function executeCalculation() {
       throw new Error(data.error || 'Error al calcular');
     }
 
-    lastExpression = `${payload.operand1} ${payload.operator} ${payload.operand2} = ${data.result}`;
-    currentInput = String(data.result);
-    firstOperand = null;
-    selectedOperator = null;
-    waitingForSecondOperand = false;
+    lastExpression = expression;
+    lastResult = data.result;
+    expression = '';
     justCalculated = true;
     updateDisplay();
     await loadHistory();
@@ -135,7 +263,7 @@ async function loadHistory() {
     data.forEach((item) => {
       const li = document.createElement('li');
       const date = new Date(item.created_at).toLocaleString();
-      li.textContent = `${item.expression} = ${item.result} (${date})`;
+      li.textContent = `${formatExpression(item.expression)} = ${item.result} (${date})`;
       historyEl.appendChild(li);
     });
   } catch (error) {
@@ -153,18 +281,34 @@ keypad.addEventListener('click', async (event) => {
   const action = button.dataset.action;
 
   if (action === 'number') {
-    inputNumber(button.dataset.value);
+    appendNumber(button.dataset.token);
   } else if (action === 'decimal') {
-    inputDecimal();
+    appendDecimal();
   } else if (action === 'operator') {
-    chooseOperator(button.dataset.operator);
+    appendOperator(button.dataset.token);
+  } else if (action === 'token' || action === 'function') {
+    appendToken(button.dataset.token);
   } else if (action === 'clear') {
-    resetCalculator();
-    errorEl.textContent = '';
+    clearExpression();
+  } else if (action === 'delete') {
+    deleteLastCharacter();
+  } else if (action === 'square') {
+    applySquare();
+  } else if (action === 'power') {
+    appendPower();
+  } else if (action === 'reciprocal') {
+    applyReciprocal();
+  } else if (action === 'toggle-sign') {
+    toggleSign();
+  } else if (action === 'use-result') {
+    useLastResult();
   } else if (action === 'equals') {
     await executeCalculation();
   }
+});
 
+angleModeButton.addEventListener('click', () => {
+  angleMode = angleMode === 'deg' ? 'rad' : 'deg';
   updateDisplay();
 });
 

@@ -3,50 +3,86 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Calculadora con historial</title>
+    <title>Calculadora cientifica</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <main class="container">
-      <h1>Calculadora Web</h1>
-
-      <section class="calculator-shell" aria-label="Calculadora">
-        <p id="operation" class="operation">&nbsp;</p>
-        <input id="display" class="display" value="0" readonly />
-
-        <div class="keypad" id="keypad">
-          <button type="button" data-action="clear" class="key key-fn">C</button>
-          <button type="button" data-action="decimal" class="key">.</button>
-          <button type="button" data-action="operator" data-operator="/" class="key key-op">÷</button>
-          <button type="button" data-action="operator" data-operator="*" class="key key-op">×</button>
-
-          <button type="button" data-action="number" data-value="7" class="key">7</button>
-          <button type="button" data-action="number" data-value="8" class="key">8</button>
-          <button type="button" data-action="number" data-value="9" class="key">9</button>
-          <button type="button" data-action="operator" data-operator="-" class="key key-op">−</button>
-
-          <button type="button" data-action="number" data-value="4" class="key">4</button>
-          <button type="button" data-action="number" data-value="5" class="key">5</button>
-          <button type="button" data-action="number" data-value="6" class="key">6</button>
-          <button type="button" data-action="operator" data-operator="+" class="key key-op">+</button>
-
-          <button type="button" data-action="number" data-value="1" class="key">1</button>
-          <button type="button" data-action="number" data-value="2" class="key">2</button>
-          <button type="button" data-action="number" data-value="3" class="key">3</button>
-          <button type="button" data-action="equals" class="key key-eq">=</button>
-
-          <button type="button" data-action="number" data-value="0" class="key key-zero">0</button>
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Modo cientifico</p>
+          <h1>Calculadora cientifica</h1>
+          <p class="subtitle">Opera con funciones trigonométricas, logaritmos, potencias, constantes y un historial persistente.</p>
         </div>
+        <button type="button" id="angle-mode" class="mode-toggle" aria-pressed="false">DEG</button>
       </section>
 
-      <p id="error" class="error"></p>
+      <section class="workspace-grid">
+        <section class="calculator-shell" aria-label="Calculadora cientifica">
+          <p id="operation" class="operation">&nbsp;</p>
+          <input id="display" class="display" value="0" readonly />
+          <p class="hint">Usa paréntesis y funciones para escribir expresiones completas.</p>
 
-      <section>
-        <h2>Historial</h2>
-        <ul id="history" class="history-list"></ul>
+          <div class="keypad" id="keypad">
+            <button type="button" data-action="clear" class="key key-fn">AC</button>
+            <button type="button" data-action="delete" class="key key-fn">DEL</button>
+            <button type="button" data-action="token" data-token="(" class="key key-fn">(</button>
+            <button type="button" data-action="token" data-token=")" class="key key-fn">)</button>
+            <button type="button" data-action="toggle-sign" class="key key-fn">±</button>
+
+            <button type="button" data-action="function" data-token="sin(" class="key key-scientific">sin</button>
+            <button type="button" data-action="function" data-token="cos(" class="key key-scientific">cos</button>
+            <button type="button" data-action="function" data-token="tan(" class="key key-scientific">tan</button>
+            <button type="button" data-action="function" data-token="ln(" class="key key-scientific">ln</button>
+            <button type="button" data-action="function" data-token="log(" class="key key-scientific">log</button>
+
+            <button type="button" data-action="token" data-token="pi" class="key key-scientific">π</button>
+            <button type="button" data-action="token" data-token="e" class="key key-scientific">e</button>
+            <button type="button" data-action="square" class="key key-scientific">x²</button>
+            <button type="button" data-action="power" class="key key-scientific">xʸ</button>
+            <button type="button" data-action="function" data-token="sqrt(" class="key key-scientific">√x</button>
+
+            <button type="button" data-action="number" data-token="7" class="key">7</button>
+            <button type="button" data-action="number" data-token="8" class="key">8</button>
+            <button type="button" data-action="number" data-token="9" class="key">9</button>
+            <button type="button" data-action="operator" data-token="/" class="key key-op">÷</button>
+            <button type="button" data-action="reciprocal" class="key key-scientific">1/x</button>
+
+            <button type="button" data-action="number" data-token="4" class="key">4</button>
+            <button type="button" data-action="number" data-token="5" class="key">5</button>
+            <button type="button" data-action="number" data-token="6" class="key">6</button>
+            <button type="button" data-action="operator" data-token="*" class="key key-op">×</button>
+            <button type="button" data-action="function" data-token="abs(" class="key key-scientific">abs</button>
+
+            <button type="button" data-action="number" data-token="1" class="key">1</button>
+            <button type="button" data-action="number" data-token="2" class="key">2</button>
+            <button type="button" data-action="number" data-token="3" class="key">3</button>
+            <button type="button" data-action="operator" data-token="-" class="key key-op">−</button>
+            <button type="button" data-action="decimal" class="key">.</button>
+
+            <button type="button" data-action="number" data-token="0" class="key key-zero">0</button>
+            <button type="button" data-action="use-result" class="key key-fn">Ans</button>
+            <button type="button" data-action="operator" data-token="+" class="key key-op">+</button>
+            <button type="button" data-action="equals" class="key key-eq">=</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <p id="error" class="error"></p>
+
+          <section>
+            <h2>Historial</h2>
+            <ul id="history" class="history-list"></ul>
+          </section>
+
+          <section class="panel-note">
+            <h2>Atajos incluidos</h2>
+            <p>Potencias con xʸ, raíz cuadrada, logaritmos, valor absoluto, constantes π y e, y selector DEG/RAD para trigonometría.</p>
+          </section>
+        </section>
       </section>
     </main>
 
     <script src="app.js"></script>
   </body>
- </html>
+</html>
